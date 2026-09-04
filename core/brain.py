@@ -84,15 +84,26 @@ class HybridBrain:
 
                 has_prior_tool_results = any(m.get("role") == "tool" for m in messages)
                 if not text and not tool_calls and has_prior_tool_results:
-                    local_res["text"] = "Task completed successfully, Commander."
+                    local_res["text"] = "All requested actions have been executed, Commander."
                     return local_res
+
+                # If no tool calls on initial user turn, check if task is complex/vision/multi-step requiring cloud escalation
+                if not tool_calls and not has_prior_tool_results:
+                    last_user_msg = next((str(m.get("content", "")) for m in reversed(messages) if m.get("role") == "user"), "")
+                    is_complex_request = any(k in last_user_msg.lower() for k in [
+                        "look at", "screen", "analyze", "swap", "then", "debug", "error", "write", "create", "why", "how"
+                    ])
+                    
+                    if (not text or is_complex_request) and self.gemini_key and self.mode != "local_only":
+                        logger.info("[ROUTER] ⚡ Complex task or vision detected. Escalating to Gemini Cloud Engine...")
+                        return await self._execute_cloud(messages, system_instruction, tools)
 
                 if not text and not tool_calls:
                     if self.gemini_key and self.mode != "local_only":
                         logger.info("[ROUTER] Local model returned empty response. Escalating to Gemini Cloud Engine...")
                         return await self._execute_cloud(messages, system_instruction, tools)
                     else:
-                        local_res["text"] = "Command received."
+                        local_res["text"] = "Command received, Commander."
                         return local_res
 
                 return local_res
@@ -394,8 +405,8 @@ class HybridBrain:
                 text = re.sub(r'\[?\s*[a-zA-Z_][a-zA-Z0-9_]*\(.*?\)\s*\]?', '', text).strip()
                 text = text.strip("'\":` \n\r")
                 known_tool_names = tuple(t["name"] for t in (tools or []))
-                if not text or text in known_tool_names:
-                    text = "All requested applications and actions have been completed, Commander."
+                if text in known_tool_names:
+                    text = ""
 
             return {
                 "text": text,
