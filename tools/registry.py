@@ -15,6 +15,7 @@ from tools.system_tools import (
 )
 from tools.web_tools import search_web, fetch_webpage
 from tools.vision_tools import analyze_screen
+from tools.media_window_tools import control_media, control_windows, control_workstation
 from config import config
 
 logger = logging.getLogger("TITAN.Tools")
@@ -213,7 +214,69 @@ class ToolRegistry:
             func=analyze_screen
         )
 
-        # 8. Remember Fact (Memory)
+        # 8. Media Transport Control
+        self.register(
+            name="control_media",
+            description="Control media playback across Spotify, YouTube, browser, and media players: 'play_pause', 'next', 'previous', 'stop', 'volume_up', 'volume_down', 'mute'.",
+            parameters={
+                "type": "object",
+                "properties": {
+                    "action": {
+                        "type": "string",
+                        "enum": ["play_pause", "next", "previous", "stop", "volume_up", "volume_down", "mute"],
+                        "description": "Media action to execute."
+                    }
+                },
+                "required": ["action"]
+            },
+            func=control_media
+        )
+
+        # 9. Window & Workspace Control
+        self.register(
+            name="control_windows",
+            description="Manage Windows desktop windows: 'minimize_all', 'show_desktop', 'restore_all', 'snap_left', 'snap_right', 'maximize', 'minimize', 'task_view', 'focus'.",
+            parameters={
+                "type": "object",
+                "properties": {
+                    "action": {
+                        "type": "string",
+                        "enum": ["minimize_all", "show_desktop", "restore_all", "snap_left", "snap_right", "maximize", "minimize", "task_view", "focus"],
+                        "description": "Window action to perform."
+                    },
+                    "target": {
+                        "type": "string",
+                        "description": "Target window title or app name (used when action is 'focus')."
+                    }
+                },
+                "required": ["action"]
+            },
+            func=control_windows
+        )
+
+        # 10. Workstation Power & Security Control
+        self.register(
+            name="control_workstation",
+            description="Control workstation lock and power states: 'lock', 'sleep', 'turn_off_screens', 'restart', 'shutdown', 'cancel_shutdown'.",
+            parameters={
+                "type": "object",
+                "properties": {
+                    "action": {
+                        "type": "string",
+                        "enum": ["lock", "sleep", "turn_off_screens", "restart", "shutdown", "cancel_shutdown"],
+                        "description": "Power/security action to execute."
+                    },
+                    "timer_seconds": {
+                        "type": "integer",
+                        "description": "Optional countdown in seconds for shutdown or restart."
+                    }
+                },
+                "required": ["action"]
+            },
+            func=control_workstation
+        )
+
+        # 11. Remember Fact (Memory)
         if self.memory:
             self.register(
                 name="remember_fact",

@@ -246,10 +246,13 @@ class HybridBrain:
             formatted_system += (
                 f"\n\n[AVAILABLE TOOLS]:\n{tool_descriptions}\n\n"
                 "[TOOL CALL INSTRUCTION]:\n"
-                "To perform actions (opening apps, websites, wikis, screen vision, volume, stats), respond with one or more JSON objects:\n"
+                "To perform actions, respond with one or more JSON objects:\n"
                 "- Desktop apps: {\"name\": \"open_application\", \"args\": {\"app_name\": \"<app>\"}}\n"
                 "- Websites, wikis, URLs: {\"name\": \"open_url\", \"args\": {\"url\": \"<url or topic>\"}}\n"
-                "- Look at / analyze screen: {\"name\": \"analyze_screen\", \"args\": {\"prompt\": \"<instruction or question>\"}}\n"
+                "- Look at screen: {\"name\": \"analyze_screen\", \"args\": {\"prompt\": \"<prompt>\"}}\n"
+                "- Control media playback: {\"name\": \"control_media\", \"args\": {\"action\": \"<play_pause|next|previous|stop>\"}}\n"
+                "- Window management: {\"name\": \"control_windows\", \"args\": {\"action\": \"<minimize_all|snap_left|snap_right|maximize>\"}}\n"
+                "- Workstation lock/power: {\"name\": \"control_workstation\", \"args\": {\"action\": \"<lock|sleep|turn_off_screens|shutdown>\"}}\n"
                 "When the user asks to perform actions, output a separate JSON tool call for EACH item on its own line."
             )
 
@@ -335,6 +338,18 @@ class HybridBrain:
                                         args = {"url": args["query"]}
                                 elif clean_name in ("capture_screen", "look_at_screen", "inspect_screen", "screenshot", "screen_capture"):
                                     clean_name = "analyze_screen"
+                                elif clean_name in ("lock_pc", "lock_screen", "lock_workstation"):
+                                    clean_name = "control_workstation"
+                                    args = {"action": "lock"}
+                                elif clean_name in ("pause_music", "play_music", "play_pause", "toggle_media"):
+                                    clean_name = "control_media"
+                                    args = {"action": "play_pause"}
+                                elif clean_name in ("skip_song", "next_song", "next_track"):
+                                    clean_name = "control_media"
+                                    args = {"action": "next"}
+                                elif clean_name in ("minimize_all", "minimize_all_windows", "show_desktop"):
+                                    clean_name = "control_windows"
+                                    args = {"action": "minimize_all"}
 
                                 if clean_name and tools and any(t["name"] == clean_name for t in tools):
                                     tool_calls.append({"name": clean_name, "args": args if isinstance(args, dict) else {}})

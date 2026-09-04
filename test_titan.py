@@ -99,5 +99,18 @@ class TestTitanCore(unittest.TestCase):
         self.assertIsInstance(window_title, str)
         print("[OK] Screen Perception & Multimodal Vision Subsystem validated.")
 
+    def test_media_and_window_controls(self):
+        """Test media transport and window control actions."""
+        from tools.media_window_tools import control_media, control_windows, control_workstation
+        res_media = control_media(action="play_pause")
+        self.assertEqual(res_media["status"], "success")
+
+        res_win = control_windows(action="minimize_all")
+        self.assertEqual(res_win["status"], "success")
+
+        res_abort = control_workstation(action="cancel_shutdown")
+        self.assertEqual(res_abort["status"], "success")
+        print("[OK] Media, Window & Workstation Controls validated.")
+
 if __name__ == "__main__":
     unittest.main()
