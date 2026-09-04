@@ -343,14 +343,40 @@ class HybridBrain:
                 except Exception:
                     pass
 
+            if not tool_calls and text:
+                import re
+                # Match [tool_name(args)] or tool_name(args)
+                pseudo_calls = re.findall(r'\[?([a-zA-Z_][a-zA-Z0-9_]*)\((.*?)\)\]?', text)
+                for fn_name, fn_args_raw in pseudo_calls:
+                    fn_name_clean = fn_name.strip()
+                    if tools and any(t["name"] == fn_name_clean for t in tools):
+                        parsed_args = {}
+                        if fn_args_raw.strip():
+                            arg_pairs = re.findall(r'([a-zA-Z_][a-zA-Z0-9_]*)\s*=\s*[\'"]?([^\'",)]+)[\'"]?', fn_args_raw)
+                            if arg_pairs:
+                                for k, v in arg_pairs:
+                                    parsed_args[k] = v.strip()
+                            else:
+                                val = fn_args_raw.strip(' "\'')
+                                tool_schema = next((t for t in tools if t["name"] == fn_name_clean), None)
+                                props = list(tool_schema.get("parameters", {}).get("properties", {}).keys()) if tool_schema else []
+                                if props:
+                                    parsed_args[props[0]] = val
+                        tool_calls.append({"name": fn_name_clean, "args": parsed_args})
+
+                if tool_calls:
+                    text = ""
+
             if text:
                 import re
                 for remnant in ["Provide a concise final confirmation", "[TOOL RESULT", "System note:", "[Tool", "completed]:"]:
                     text = text.replace(remnant, "").strip()
                 text = re.sub(r'\[\s*\{\s*"status".*?\}\s*\]', '', text, flags=re.DOTALL).strip()
                 text = re.sub(r'\{\s*"status".*?\}', '', text, flags=re.DOTALL).strip()
+                text = re.sub(r'\[?\s*[a-zA-Z_][a-zA-Z0-9_]*\(.*?\)\s*\]?', '', text).strip()
                 text = text.strip("'\":` \n\r")
-                if not text or text in ("open_url", "open_application", "search_web", "execute_powershell", "control_volume", "get_system_stats"):
+                known_tool_names = tuple(t["name"] for t in (tools or []))
+                if not text or text in known_tool_names:
                     text = "All requested applications and actions have been completed, Commander."
 
             return {

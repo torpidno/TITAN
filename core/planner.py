@@ -207,7 +207,13 @@ class TitanAgent:
 
             # If no tool calls requested, we have the final answer
             if not tool_calls:
-                final_response = response_text or "Task completed, Commander."
+                import re
+                clean_final = (response_text or "").strip()
+                if clean_final.startswith("[") and clean_final.endswith("]"):
+                    clean_final = clean_final.strip("[]").strip()
+                if re.match(r'^[a-zA-Z_][a-zA-Z0-9_]*\(.*\)$', clean_final) or clean_final.startswith(("{", "'", '"', "`")):
+                    clean_final = "Task completed, Commander."
+                final_response = clean_final or "Task completed, Commander."
                 self.memory.add_working_message("model", final_response)
                 self.memory.record_episode(self.session_id, "model", final_response)
                 break
@@ -222,8 +228,11 @@ class TitanAgent:
                     new_tool_calls.append(tc)
 
             if not new_tool_calls:
+                import re
                 clean_txt = (response_text or "").strip()
-                if clean_txt and not clean_txt.startswith(("{", "'", '"', "[", "open_", "search_")):
+                if clean_txt.startswith("[") and clean_txt.endswith("]"):
+                    clean_txt = clean_txt.strip("[]").strip()
+                if clean_txt and not clean_txt.startswith(("{", "'", '"', "[", "open_", "search_", "test_")) and not re.match(r'^[a-zA-Z_][a-zA-Z0-9_]*\(.*\)$', clean_txt):
                     final_response = clean_txt
                 else:
                     final_response = "All requested applications and actions have been executed, Commander."

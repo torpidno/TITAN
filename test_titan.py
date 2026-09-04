@@ -63,6 +63,13 @@ class TestTitanCore(unittest.TestCase):
         # Execute the new skill directly
         skill_output = self.tools.tools[skill_name]()
         self.assertEqual(skill_output.get("ping"), "pong")
+
+        # Cleanup test skill file to avoid polluting user tools
+        test_file = config.SKILLS_DIR / f"{skill_name}.py"
+        if test_file.exists():
+            test_file.unlink()
+        self.tools.reload_dynamic_skills()
+
         print("[OK] Dynamic Skill Synthesis & Hot-Reload validated.")
 
     def test_git_versioning_and_evolution(self):
