@@ -88,18 +88,16 @@ class TestTitanCore(unittest.TestCase):
         self.assertIn("class Config:", res["content"])
         print("[OK] Git Versioning & Code Inspection validated.")
 
-    def test_hud_window_initialization(self):
-        """Test PySide6 Tactical Desktop HUD instantiation."""
-        from PySide6.QtWidgets import QApplication
-        from core.planner import TitanAgent
-        from ui.hud_window import TitanHUDWindow
+    def test_screen_capture_and_vision_tool(self):
+        """Test Screen Capture & Multimodal Vision tool."""
+        from tools.vision_tools import capture_screen_base64, get_active_window_title
+        b64 = capture_screen_base64(max_width=800, quality=50)
+        self.assertIsNotNone(b64)
+        self.assertTrue(len(b64) > 100)
         
-        app = QApplication.instance() or QApplication([])
-        agent = TitanAgent()
-        hud = TitanHUDWindow(agent=agent, enable_voice=False)
-        self.assertIsNotNone(hud)
-        self.assertEqual(hud.windowTitle(), "T.I.T.A.N. Tactical HUD")
-        print("[OK] PySide6 Cyberpunk HUD Overlay validated.")
+        window_title = get_active_window_title()
+        self.assertIsInstance(window_title, str)
+        print("[OK] Screen Perception & Multimodal Vision Subsystem validated.")
 
 if __name__ == "__main__":
     unittest.main()

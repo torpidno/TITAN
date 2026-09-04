@@ -14,6 +14,7 @@ from tools.system_tools import (
     file_manager
 )
 from tools.web_tools import search_web, fetch_webpage
+from tools.vision_tools import analyze_screen
 from config import config
 
 logger = logging.getLogger("TITAN.Tools")
@@ -193,6 +194,23 @@ class ToolRegistry:
                 "required": ["url"]
             },
             func=fetch_webpage
+        )
+
+        # 7.5 Screen Perception & Multimodal Vision
+        self.register(
+            name="analyze_screen",
+            description="Capture the user's active monitor display and perform AI visual perception/analysis. Use when asked to look at screen, inspect errors, summarize open documents, or describe visual UI.",
+            parameters={
+                "type": "object",
+                "properties": {
+                    "prompt": {
+                        "type": "string",
+                        "description": "What specific question or instruction to inspect on screen (e.g. 'explain this error', 'summarize this article', 'what is on screen')."
+                    }
+                },
+                "required": []
+            },
+            func=analyze_screen
         )
 
         # 8. Remember Fact (Memory)
