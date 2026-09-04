@@ -129,6 +129,19 @@ class TitanApplication:
                         skills = self.agent.learner.list_learned_skills()
                         TitanTerminalUI.print_skills(skills)
                         continue
+                    elif cmd in ("/history", "/evolve", "/git"):
+                        history = self.agent.evolution.git.get_history(limit=8)
+                        TitanTerminalUI.print_history(history)
+                        continue
+                    elif cmd == "/rollback":
+                        parts = user_input.split()
+                        steps = int(parts[1]) if len(parts) > 1 and parts[1].isdigit() else 1
+                        res = self.agent.evolution.git.rollback(steps=steps)
+                        if res["success"]:
+                            TitanTerminalUI.print_info(res["message"])
+                        else:
+                            TitanTerminalUI.print_error(res["message"])
+                        continue
                     elif cmd == "/voice":
                         self.voice_enabled = not self.voice_enabled
                         config.VOICE_ENABLED = self.voice_enabled
@@ -158,13 +171,15 @@ class TitanApplication:
     def _show_help(self):
         console.print("""
 [bold cyan]T.I.T.A.N. Quick Commands:[/bold cyan]
-  [yellow]/help[/yellow]     - Show this help manual
-  [yellow]/stats[/yellow]    - Display live CPU, RAM, and Battery metrics
-  [yellow]/memory[/yellow]   - View persistent knowledge and saved facts
-  [yellow]/skills[/yellow]   - View dynamic learned procedural skills
-  [yellow]/voice[/yellow]    - Toggle voice wake word and speech synthesizer
-  [yellow]/clear[/yellow]    - Reset current conversation context
-  [yellow]/exit[/yellow]     - Safely shutdown T.I.T.A.N.
+  [yellow]/help[/yellow]       - Show this help manual
+  [yellow]/stats[/yellow]      - Display live CPU, RAM, and Battery metrics
+  [yellow]/memory[/yellow]     - View persistent knowledge and saved facts
+  [yellow]/skills[/yellow]     - View dynamic learned procedural skills
+  [yellow]/history[/yellow]    - View autonomous code evolution & Git version history
+  [yellow]/rollback[/yellow]   - Rollback codebase to previous Git commit (e.g. /rollback or /rollback 2)
+  [yellow]/voice[/yellow]      - Toggle voice wake word and speech synthesizer
+  [yellow]/clear[/yellow]      - Reset current conversation context
+  [yellow]/exit[/yellow]       - Safely shutdown T.I.T.A.N.
 
 [bold cyan]Example Natural Language Commands:[/bold cyan]
   - "Open chrome and search for quantum computing breakthroughs"
@@ -172,6 +187,7 @@ class TitanApplication:
   - "Check how much free disk space and RAM I have"
   - "Remember that my favorite code editor is VS Code"
   - "Learn a new skill called 'open_downloads' to open my Downloads folder"
+  - "Inspect tools/system_tools.py and add a new tool to minimize all windows"
 """)
 
 

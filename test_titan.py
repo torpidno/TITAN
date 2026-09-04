@@ -65,5 +65,21 @@ class TestTitanCore(unittest.TestCase):
         self.assertEqual(skill_output.get("ping"), "pong")
         print("[OK] Dynamic Skill Synthesis & Hot-Reload validated.")
 
+    def test_git_versioning_and_evolution(self):
+        """Test Git version control, status, and code inspection."""
+        from core.evolution import GitVersionManager, CodeEvolutionEngine
+        git_mgr = GitVersionManager()
+        status = git_mgr.get_status()
+        self.assertTrue("branch" in status)
+        
+        history = git_mgr.get_history(limit=3)
+        self.assertTrue(len(history) > 0)
+        
+        engine = CodeEvolutionEngine(memory=self.memory)
+        res = engine.inspect_file("config.py")
+        self.assertEqual(res["status"], "success")
+        self.assertIn("TITANConfig", res["content"])
+        print("[OK] Git Versioning & Code Inspection validated.")
+
 if __name__ == "__main__":
     unittest.main()

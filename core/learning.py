@@ -75,12 +75,18 @@ class TitanLearner:
                 trigger_context=f"Created skill: {clean_name}",
                 lesson=f"Synthesized skill '{clean_name}': {description}"
             )
+
+            # Auto-commit and push skill to GitHub
+            from core.evolution import GitVersionManager
+            git_mgr = GitVersionManager()
+            checkpoint = git_mgr.create_checkpoint(f"Learned dynamic skill: {clean_name}", auto_push=True)
             
-            logger.info(f"[SKILL] Successfully synthesized skill: {clean_name} -> {target_path}")
+            logger.info(f"[SKILL] Successfully synthesized skill: {clean_name} -> {target_path} (Git: {checkpoint.get('commit_hash', 'local')})")
             return {
                 "status": "success",
-                "message": f"Skill '{clean_name}' successfully learned and activated.",
-                "filepath": str(target_path)
+                "message": f"Skill '{clean_name}' successfully learned, activated, and synced to Git.",
+                "filepath": str(target_path),
+                "commit_hash": checkpoint.get("commit_hash", "")
             }
         except Exception as e:
             logger.error(f"Failed to synthesize skill: {e}")

@@ -5,6 +5,7 @@ from typing import Dict, Any, List, Optional
 from core.brain import HybridBrain
 from core.memory import TitanMemory
 from core.learning import TitanLearner
+from core.evolution import CodeEvolutionEngine, GitVersionManager
 from tools.registry import ToolRegistry
 
 logger = logging.getLogger("TITAN.Planner")
@@ -16,11 +17,12 @@ You have full tactical capabilities to:
 2. Browse the web, perform real-time searches, and extract information.
 3. Access and update your persistent long-term memory (remembering user preferences, personal facts, and past interactions).
 4. Learn new skills dynamically by writing Python modules for yourself using the 'learn_new_skill' tool.
+5. Continuously self-improve by inspecting and rewriting your own codebase using 'inspect_codebase' and 'evolve_codebase' with automatic Git version control, test validation, and GitHub synchronization. If something breaks, 'rollback_version' safely restores the previous working state.
 
 Operational Directives:
 - Be concise, tactical, sharp, and helpful.
 - When the user asks you to perform an action on their PC, use your available tools immediately.
-- When the user teaches you something or asks you to learn a habit, use 'remember_fact' or 'learn_new_skill'.
+- When the user asks you to upgrade, optimize, fix, or evolve your internal capabilities, use 'inspect_codebase' and 'evolve_codebase'.
 - If a command or tool fails, reflect on the error and try an alternative approach.
 
 {memory_context}
@@ -37,14 +39,16 @@ class TitanAgent:
         self.memory = TitanMemory()
         self.tools = ToolRegistry(memory_instance=self.memory)
         self.learner = TitanLearner(memory=self.memory, tool_registry=self.tools)
+        self.evolution = CodeEvolutionEngine(memory=self.memory)
         self._register_meta_tools()
         self.session_id = str(uuid.uuid4())[:8]
 
     def _register_meta_tools(self):
-        """Register agent self-modification & learning meta-tools."""
+        """Register agent self-modification, learning, and Git evolution tools."""
+        # 1. Synthesize New Dynamic Skill
         self.tools.register(
             name="learn_new_skill",
-            description="Synthesize and save a brand-new executable Python skill that becomes a permanent tool in TITAN's toolset.",
+            description="Synthesize and save a brand-new executable Python skill that becomes a permanent tool in TITAN's toolset and syncs to Git.",
             parameters={
                 "type": "object",
                 "properties": {
@@ -72,6 +76,86 @@ class TitanAgent:
                 "required": ["name", "description", "parameters", "code_body"]
             },
             func=self.learner.synthesize_skill
+        )
+
+        # 2. Inspect Codebase
+        self.tools.register(
+            name="inspect_codebase",
+            description="Inspect the source code of any file within TITAN (e.g. 'tools/system_tools.py', 'core/brain.py').",
+            parameters={
+                "type": "object",
+                "properties": {
+                    "filepath": {
+                        "type": "string",
+                        "description": "Relative path to file in repo (e.g. 'tools/system_tools.py')."
+                    }
+                },
+                "required": ["filepath"]
+            },
+            func=self.evolution.inspect_file
+        )
+
+        # 3. Evolve Codebase (Self-Rewrite with Test Verification & GitHub Sync)
+        self.tools.register(
+            name="evolve_codebase",
+            description="Modify, rewrite, or extend TITAN's internal source code. Automatically runs self-tests, rolls back if tests fail, and commits & pushes to GitHub if passing.",
+            parameters={
+                "type": "object",
+                "properties": {
+                    "filepath": {
+                        "type": "string",
+                        "description": "Relative path to the file to modify or create (e.g. 'tools/system_tools.py')."
+                    },
+                    "new_code": {
+                        "type": "string",
+                        "description": "Full updated Python source code for the file."
+                    },
+                    "reason": {
+                        "type": "string",
+                        "description": "Detailed explanation of the improvement or bugfix."
+                    },
+                    "auto_push": {
+                        "type": "boolean",
+                        "description": "Whether to automatically push the new commit to GitHub (default true)."
+                    }
+                },
+                "required": ["filepath", "new_code", "reason"]
+            },
+            func=self.evolution.evolve_code
+        )
+
+        # 4. Rollback Version
+        self.tools.register(
+            name="rollback_version",
+            description="Rollback TITAN's codebase to a previous Git commit if something broke or was degraded.",
+            parameters={
+                "type": "object",
+                "properties": {
+                    "steps": {
+                        "type": "integer",
+                        "description": "Number of commits to revert (default 1)."
+                    }
+                },
+                "required": []
+            },
+            func=self.evolution.git.rollback
+        )
+
+        # 5. Get Evolution History
+        self.tools.register(
+            name="get_evolution_history",
+            description="View recent Git commits and autonomous evolution history.",
+            parameters={
+                "type": "object",
+                "properties": {
+                    "limit": {
+                        "type": "integer",
+                        "description": "Number of recent commits to retrieve (default 5)."
+                    }
+                },
+                "required": []
+            },
+            func=self.evolution.git.get_history
         )
 
     async def process_user_input(

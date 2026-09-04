@@ -145,3 +145,17 @@ class TitanTerminalUI:
             console.print(table)
         except Exception:
             print("Memory Facts:", facts)
+
+    @staticmethod
+    def print_history(history: list):
+        try:
+            table = Table(title="[bold cyan]Code Evolution & Git Version History[/bold cyan]", box=box.ASCII)
+            table.add_column("Commit", style="bold yellow")
+            table.add_column("Time", style="dim cyan")
+            table.add_column("Author", style="dim white")
+            table.add_column("Changelog / Evolution", style="white")
+            for h in history:
+                table.add_row(h.get("hash", ""), h.get("time", ""), h.get("author", ""), h.get("message", ""))
+            console.print(table)
+        except Exception:
+            print("Git History:", history)
