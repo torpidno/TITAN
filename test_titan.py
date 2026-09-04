@@ -78,7 +78,7 @@ class TestTitanCore(unittest.TestCase):
         engine = CodeEvolutionEngine(memory=self.memory)
         res = engine.inspect_file("config.py")
         self.assertEqual(res["status"], "success")
-        self.assertIn("TITANConfig", res["content"])
+        self.assertIn("class Config:", res["content"])
         print("[OK] Git Versioning & Code Inspection validated.")
 
 if __name__ == "__main__":
