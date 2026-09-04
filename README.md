@@ -57,15 +57,19 @@ WAKE_WORD=titan
 VOICE_ENABLED=false
 ```
 
-### 2. Launch T.I.T.A.N. Terminal
+### 2. Launch T.I.T.A.N.
 ```powershell
+# Interactive Terminal Mode
 python titan.py
+
+# Floating Cyberpunk Desktop HUD Overlay
+python titan.py --hud
+
+# HUD with Voice Wake-Word Activated
+python titan.py --hud --voice
 ```
 
-To start with voice listening and TTS enabled:
-```powershell
-python titan.py --voice
-```
+> **Global Hotkey**: Press **`Ctrl + Space`** or **`Ctrl + Shift + T`** anywhere in Windows to summon or hide the HUD instantly!
 
 ---
 
