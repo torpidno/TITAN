@@ -17,12 +17,16 @@ An autonomous, hybrid AI assistant that lives locally on your Windows PC (optimi
    - **Tier 2 (Episodic)**: SQLite database (`titan_memory.db`) recording full interaction logs, tool runs, and timestamps.
    - **Tier 3 (Semantic)**: JSON long-term knowledge base (`knowledge_store.json`) for user preferences, facts, and habits.
 
-3. **Self-Reflection & Continuous Learning**
-   - Analyzes execution errors and logs insights.
-   - Generates executable Python modules into [tools/dynamic_skills/](file:///C:/Users/Zenbook/prod/TITAN/tools/dynamic_skills/) on the fly, hot-reloading new skills without restarting!
+3. **Self-Reflection, Code Evolution & Git Version Control**
+   - **Autonomous Self-Improvement**: Can inspect, refactor, and rewrite its own codebase (`core/evolution.py`) to fix bugs, optimize algorithms, or add new capabilities.
+   - **Pre-Flight Test Verification**: Automatically executes the test suite (`test_titan.py`) before committing any code changes.
+   - **Automatic GitHub Checkpoints**: Every verified code evolution and synthesized skill is automatically committed and pushed to GitHub with descriptive changelogs.
+   - **Fail-Safe Rollback**: If an experimental change fails self-tests or degrades behavior, TITAN automatically restores the last healthy Git commit.
+   - **Procedural Skills**: Generates executable Python modules into [tools/dynamic_skills/](file:///C:/Users/Zenbook/prod/TITAN/tools/dynamic_skills/) on the fly, hot-reloading new skills without restarting.
 
 4. **Windows & Web Automation**
-   - Launch apps (`calc`, `notepad`, `chrome`, `spotify`, `explorer`, `settings`).
+   - Launch apps (`calc`, `notepad`, `chrome`, `spotify`, `steam`, `discord`, `explorer`, `settings`).
+   - Open websites, wikis, and direct search topics in the default browser.
    - Run PowerShell commands and scripts.
    - Control audio volume and mute state.
    - Live web search and webpage content extraction.
@@ -45,8 +49,8 @@ GEMINI_MODEL=gemini-2.5-flash
 
 # Local NPU / FLM Server Settings (when running FLM / local server)
 LOCAL_MODEL_ENABLED=true
-LOCAL_MODEL_ENDPOINT=http://127.0.0.1:8000/v1
-LOCAL_MODEL_NAME=flm-local
+LOCAL_MODEL_ENDPOINT=http://127.0.0.1:52625/v1
+LOCAL_MODEL_NAME=qwen2.5-it:3b
 
 TITAN_MODE=hybrid
 WAKE_WORD=titan
@@ -70,6 +74,8 @@ python titan.py --voice
 - `/stats` - Live CPU, RAM, and Battery telemetry
 - `/memory` - Inspect saved facts and preferences
 - `/skills` - View dynamic learned skills
+- `/history` - View autonomous code evolution & Git version history
+- `/rollback` - Revert codebase to previous Git commit (e.g. `/rollback` or `/rollback 2`)
 - `/voice` - Toggle wake-word listening & voice synthesizer
 - `/clear` - Reset current conversation context
 - `/exit` - Power down T.I.T.A.N.
