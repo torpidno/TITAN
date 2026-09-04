@@ -32,12 +32,17 @@ An autonomous, hybrid AI assistant that lives locally on your Windows PC (optimi
    - Live web search and webpage content extraction.
    - System telemetry (CPU, RAM, Battery, Storage).
 
-5. **Screen Perception & Multimodal Vision**
+5. **Deep Media, Window & Workstation Controls**
+   - **System Media Transport**: Play/pause, next track, previous track, stop media across Spotify, YouTube, and media players.
+   - **Window Management**: Minimize all / show desktop, restore, snap left/right, maximize, minimize, switch tasks.
+   - **Workstation Power & Security**: Lock workstation (`Win+L`), sleep system, turn off display screens, or schedule auto-shutdowns.
+
+6. **Screen Perception & Multimodal Vision**
    - **Real-Time Desktop Capture**: Captures active displays and windows at native High-DPI resolutions.
    - **Visual Error & Code Analysis**: Can inspect IDE errors, charts, documents, or UI layouts on your screen and provide instant tactical solutions.
    - **Command Trigger**: *"Look at my screen and tell me what is open"*, *"Explain this error on my display"*.
 
-6. **Voice Wake Word & Audio**
+7. **Voice Wake Word & Audio**
    - Voice wake-word detection for **"TITAN"**.
    - Offline Speech-To-Text via `faster-whisper`.
    - Offline Text-To-Speech via Windows SAPI5.
