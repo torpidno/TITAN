@@ -81,5 +81,18 @@ class TestTitanCore(unittest.TestCase):
         self.assertIn("class Config:", res["content"])
         print("[OK] Git Versioning & Code Inspection validated.")
 
+    def test_hud_window_initialization(self):
+        """Test PySide6 Tactical Desktop HUD instantiation."""
+        from PySide6.QtWidgets import QApplication
+        from core.planner import TitanAgent
+        from ui.hud_window import TitanHUDWindow
+        
+        app = QApplication.instance() or QApplication([])
+        agent = TitanAgent()
+        hud = TitanHUDWindow(agent=agent, enable_voice=False)
+        self.assertIsNotNone(hud)
+        self.assertEqual(hud.windowTitle(), "T.I.T.A.N. Tactical HUD")
+        print("[OK] PySide6 Cyberpunk HUD Overlay validated.")
+
 if __name__ == "__main__":
     unittest.main()

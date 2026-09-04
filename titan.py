@@ -194,6 +194,7 @@ class TitanApplication:
 def main():
     parser = argparse.ArgumentParser(description="T.I.T.A.N. - Tactical Interface for Task Automation & Navigation")
     parser.add_argument("--voice", action="store_true", help="Enable voice wake word & TTS at launch")
+    parser.add_argument("--hud", action="store_true", help="Launch Cyberpunk Desktop Floating HUD Overlay GUI")
     parser.add_argument("--cloud-only", action="store_true", help="Force cloud Gemini model only")
     parser.add_argument("--local-only", action="store_true", help="Force local NPU/FLM model only")
     args = parser.parse_args()
@@ -202,6 +203,11 @@ def main():
         config.TITAN_MODE = "cloud_only"
     elif args.local_only:
         config.TITAN_MODE = "local_only"
+
+    if args.hud:
+        from ui.hud_window import launch_hud
+        launch_hud(enable_voice=args.voice)
+        return
 
     app = TitanApplication(enable_voice=args.voice)
     try:
